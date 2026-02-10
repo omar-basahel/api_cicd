@@ -1,0 +1,27 @@
+name: Flask API CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Deploy to EC2 instances
+        run: |
+          for host in 3.29.90.10 40.172.8.86
+          do
+            echo "Deploying to $host"
+            ssh -o StrictHostKeyChecking=no ec2-user@$host "bash /home/ec2-user/python_project/api_cicd/deploy.sh"
+          done
