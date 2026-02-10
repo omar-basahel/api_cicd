@@ -1,0 +1,30 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "Notebook",
+      "price": 12.5,
+      "createdAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "p2",
+      "name": "Pen",
+      "price": 3.0,
+      "createdAt": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "o1",
+      "customer": "Fatima",
+      "items": [
+        {
+          "productId": "p1",
+          "qty": 2
+        }
+      ],
+      "status": "NEW",
+      "createdAt": "2026-01-01T00:00:00Z"
+    }
+  ]
+}
