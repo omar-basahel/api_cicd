@@ -11,6 +11,33 @@ app = Flask(__name__)
 PORT = int(os.getenv("PORT", "5000"))
 API_KEY = os.getenv("API_KEY")
 DATA_FILE = os.getenv("DATA_FILE", "./data/db.json")
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+BASIC_USER = os.getenv("BASIC_USER")
+BASIC_PASS = os.getenv("BASIC_PASS")
+
+def require_basic_auth():
+    auth = request.authorization
+    if not auth:
+        return jsonify({"error": "Unauthorized: missing credentials"}), 401
+
+    if auth.username != BASIC_USER or auth.password != BASIC_PASS:
+        return jsonify({"error": "Unauthorized: invalid username or password"}), 401
+
+    return None
+
+def require_bearer_token():
+    if not BEARER_TOKEN:
+        return jsonify({"error": "Server misconfigured: BEARER_TOKEN missing"}), 500
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return jsonify({"error": "Unauthorized: missing bearer token"}), 401
+
+    token = auth_header.replace("Bearer ", "")
+    if token != BEARER_TOKEN:
+        return jsonify({"error": "Unauthorized: invalid bearer token"}), 401
+
+    return None
 
 def now():
     return datetime.utcnow().isoformat() + "Z"
@@ -45,11 +72,17 @@ def health():
 
 @app.before_request
 def auth_guard():
-    # Only protect /api routes
     if request.path.startswith("/api"):
-        resp = require_api_key()
-        if resp is not None:
-            return resp
+        if require_api_key() is None:
+            return None
+
+        if require_bearer_token() is None:
+            return None
+
+        if require_basic_auth() is None:
+            return None
+
+        return jsonify({"error": "Unauthorized"}), 401
 
 # -------- Products --------
 @app.get("/api/products")
