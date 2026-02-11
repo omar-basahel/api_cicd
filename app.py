@@ -24,19 +24,7 @@ def require_basic_auth():
         return jsonify({"error": "Unauthorized: invalid username or password"}), 401
 
     return None
-def require_bearer_token():
-    if not BEARER_TOKEN:
-        return jsonify({"error": "Server misconfigured: BEARER_TOKEN missing"}), 500
 
-    auth_header = request.headers.get("Authorization", "")
-    if not auth_header.startswith("Bearer "):
-        return jsonify({"error": "Unauthorized: missing bearer token"}), 401
-
-    token = auth_header.replace("Bearer ", "")
-    if token != BEARER_TOKEN:
-        return jsonify({"error": "Unauthorized: invalid bearer token"}), 401
-
-    return None
 
 def now():
     return datetime.utcnow().isoformat() + "Z"
